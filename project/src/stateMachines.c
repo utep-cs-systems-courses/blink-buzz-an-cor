@@ -5,18 +5,40 @@
 #include "stateMachines.h"
 
 unsigned char siren_on = 0;
+unsigned char light_show_on = 0;
+unsigned char song_on = 0;
 unsigned char turnoff_on = 0;
 
 void selectFunction()
 {
   //If button 4 is pressed,all leds and the buzzer is turned off
   if(sw4_state_down){
+    light_show_on = 0;
+    song_on = 0;
     siren_on = 0;
     turnoff_on = 1;
     
   }
-  //If button 1 is pressed a siren occurs
+  //If button 3 is pressed, the paradiddle state machine is started
+  if(sw3_state_down){
+    light_show_on = 1;
+    song_on = 0;
+    siren_on = 0;
+    turnoff_on = 0;
+  }
+
+  //If button 2 is pressed, a song is played
+  if(sw2_state_down){
+    light_show_on = 0;
+    song_on = 1;
+    siren_on = 0;
+    turnoff_on = 0;
+  }
+
+  //If button 1 is pressed a whistle occurs
   if(sw1_state_down){
+    light_show_on = 0;
+    song_on = 0;
     siren_on = 1;
     turnoff_on = 0;
   }
@@ -63,4 +85,44 @@ void siren()
     siren_state = 0;//goes to state 0
     break;
   }
+}
+
+int blinkLimit = 5;  // duty cycle = 1/blinkLimit
+int blinkCount = 0;  // cycles 0...blinkLimit-1
+int blinkCount2 = 7; // cycles blinkLimit -1...0
+int secondCount = 0; // state var representing repeating time 0…1s
+
+void light_show()
+{
+    // handle blinking
+    blinkCount ++;
+    blinkCount2 --;
+    if (blinkCount >= blinkLimit) { // on for 1 interrupt period
+      blinkCount = 0;
+      P1OUT |= LED_GREEN;
+    } else {
+      // off for blinkLimit - 1 interrupt periods
+      P1OUT &= ~LED_GREEN;
+    }
+
+    if(blinkCount2 <= 0){
+      blinkCount2 = blinkLimit;
+      //P1OUT |= LED_RED;
+      P1OUT &= ~LED_RED;
+    }else{
+      //P1OUT &= ~LED_RED;
+      P1OUT |= LED_RED;
+    }
+
+    // measure a second
+    secondCount ++;
+    if (secondCount >= 250) {  // once each second
+      secondCount = 0;
+      blinkLimit ++;         // reduce duty cycle
+      if (blinkLimit >= 8)     // but don't let duty cycle go below 1/7.
+        blinkLimit = 0;
+    }
+}
+void song(){
+    // play song
 }
