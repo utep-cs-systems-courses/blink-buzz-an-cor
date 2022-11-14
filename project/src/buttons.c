@@ -5,6 +5,11 @@
 
 
 char sw1_state_down, sw1_state_changed,
+
+  sw2_state_down, sw2_state_changed,
+
+  sw3_state_down, sw3_state_changed,
+
   sw4_state_down, sw4_state_changed;
 
 // handle when each respective is pressed/unpressed
@@ -16,6 +21,23 @@ static char sw1_update_interrupt_sense()
   P2IES &= (p2val | ~SW1);// If switch down, sense up
   return p2val;
 }
+
+static char sw2_update_interrupt_sense()
+{
+  char p2val = P2IN;
+  P2IES |= (p2val & SW2);
+  P2IES &= (p2val | ~SW2);
+  return p2val;
+}
+
+static char sw3_update_interrupt_sense()
+{
+  char p2val = P2IN;
+  P2IES |= (p2val & SW3);
+  P2IES &= (p2val | ~SW3);
+  return p2val;
+}
+
 static char sw4_update_interrupt_sense()
 {
   char p2val = P2IN;
@@ -34,6 +56,8 @@ void switch_init()
 
   // Detect button presses
   sw1_update_interrupt_sense();
+  sw2_update_interrupt_sense();
+  sw3_update_interrupt_sense();
   sw4_update_interrupt_sense();
 
 }
@@ -46,6 +70,26 @@ void sw1_interrupt_handler()
   selectFunction();//picks method according to switch # pressed
   led_update();//updates leds
 }
+
+
+void sw2_interrupt_handler()
+{
+  char p2val = sw2_update_interrupt_sense();
+  sw2_state_down = (p2val & SW2) ? 0 : 1;
+  sw2_state_changed = 1;
+  selectFunction();
+  led_update();
+}
+
+void sw3_interrupt_handler()
+{
+  char p2val = sw3_update_interrupt_sense();
+  sw3_state_down = (p2val & SW3) ? 0 : 1;
+  sw3_state_changed = 1;
+  selectFunction();
+  led_update();
+}
+
 
 void sw4_interrupt_handler()
 {

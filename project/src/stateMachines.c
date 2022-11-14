@@ -25,14 +25,12 @@ void selectFunction()
  
 // Uses switch 4 (P2.3) to turnoff all leds and the buzzer
 void turnoff()
-
 {
   turn_green_off();
   turn_red_off();
   turn_buzzer_off();
   led_changed = 1;
   led_update();
-
 }
 
 //continousl sirens down until period is 100, then starts over
@@ -65,7 +63,4 @@ void siren()
     siren_state = 0;//goes to state 0
     break;
   }
-  //updates leds
-  led_changed = 1;
-  led_update();
 }
